@@ -509,29 +509,6 @@
     #pagination button:disabled { opacity: 0.3; cursor: default; }
     #pagination .page-info { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); margin-left: 8px; }
 
-    /* ---- BLOG POSTS (if any) ---- */
-    .blog-posts-section {
-      margin-top: 32px;
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-    }
-    .blog-posts-section h2 {
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-    .post-list { list-style: none; }
-    .post-list li {
-      border-bottom: 1px solid var(--border);
-      padding: 8px 0;
-    }
-    .post-list li a { color: var(--text); font-size: 0.88rem; }
-    .post-list li a:hover { color: var(--accent); }
-    .post-list .post-meta { font-size: 0.72rem; color: var(--text-dim); margin-top: 2px; }
-
     /* ---- FOOTER ---- */
     #footer {
       border-top: 1px solid var(--border);
@@ -705,7 +682,7 @@
 
     <!-- FOOTER -->
     <div id="footer">
-      <span>Powered by <a href="https://chaturbate.com" rel="nofollow" target="_blank">Chaturbate API</a></span>
+      <span>Powered by <a href="https://chaturbate.com/?wm=T2CSW" rel="nofollow" target="_blank">Chaturbate API</a></span>
       <span>—</span>
       <span>Data updates every 5 min</span>
       <span class="ml">Powered by <a href="#">Chaturbate Live Rooms</a></span>
@@ -716,13 +693,16 @@
   <script>
   /* ============================================================
      CHATURBATE LIVE ROOMS — Standalone HTML Version
-     Fully functional — no Blogger required
+     ALL LINKS NOW REV-SHARE ENABLED (wm=T2CSW)
   ============================================================ */
 
   (function () {
     'use strict';
 
-    const API_URL = 'https://chaturbate.com/api/public/affiliates/onlinerooms/?wm=T2CSW&client_ip=request_ip&limit=500&offset=0&format=json';
+    // === REV-SHARE AFFILIATE CODE ===
+    const AFFILIATE_WM = 'T2CSW';
+
+    const API_URL = `https://chaturbate.com/api/public/affiliates/onlinerooms/?wm=${AFFILIATE_WM}&client_ip=request_ip&limit=500&offset=0&format=json`;
     let allRooms = [];
     let filtered = [];
     let currentPage = 1;
@@ -841,7 +821,8 @@
         const name = escHtml(r.username || '');
         const dispName = escHtml(r.display_name || r.username || '');
         const img = r.image_url || r.thumb || '';
-        const url = 'https://chaturbate.com/' + name + '/';
+        // REV-SHARE LINK (all room links now include ?wm=T2CSW)
+        const url = `https://chaturbate.com/${name}/?wm=${AFFILIATE_WM}`;
         const viewers = typeof r.num_users === 'number' ? r.num_users.toLocaleString() : (r.num_users || '0');
         const gender = (r.gender || '').toLowerCase();
         const gLabel = { f: 'Female', m: 'Male', c: 'Couple', t: 'Trans' }[gender] || (gender || 'Unknown');
@@ -857,7 +838,7 @@
           : `<span class="avatar"></span>`;
 
         return `<tr>
-          <td class="col-user"><a href="${escHtml(url)}" target="_blank" rel="nofollow">${avatar}${dispName}</a></td>
+          <td class="col-user"><a href="${url}" target="_blank" rel="nofollow">${avatar}${dispName}</a></td>
           <td><span class="badge-live">LIVE</span></td>
           <td class="col-viewers num"><span class="viewers-val">${viewers}</span></td>
           <td class="${gClass}">${gLabel}</td>
@@ -917,7 +898,6 @@
         sortCol = col;
         sortDir = (col === 'num_users') ? 'desc' : 'asc';
       }
-      // Update header classes
       document.querySelectorAll('#rooms-table thead th').forEach(h => {
         h.classList.remove('sort-asc', 'sort-desc');
         if (h.getAttribute('data-sort') === sortCol) {
@@ -932,21 +912,16 @@
       applyFilters();
     };
 
-    // Wire up event listeners
     function init() {
       el('search-input').addEventListener('input', applyFilters);
       el('gender-filter').addEventListener('change', applyFilters);
       el('per-page-select').addEventListener('change', () => { currentPage = 1; render(); });
 
-      // Initial sort header
       document.querySelectorAll('#rooms-table thead th').forEach(h => {
         if (h.getAttribute('data-sort') === sortCol) h.classList.add('sort-desc');
       });
 
-      // Start the app
       fetchRooms();
-
-      // Auto-refresh every 5 minutes
       setInterval(fetchRooms, 5 * 60 * 1000);
     }
 
